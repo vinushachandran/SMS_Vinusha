@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="SMS_DBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="StudentID" />
+          </Key>
+          <Property Name="StudentID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StudentRegNo" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="MiddleName" Type="nvarchar" MaxLength="20" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="DisplayName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="Gender" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="DOB" Type="date" Nullable="false" />
+          <Property Name="Address" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ContactNo" Type="nvarchar" MaxLength="15" Nullable="false" />
+          <Property Name="IsEnable" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Student_Subject_Teacher_Allocation">
+          <Key>
+            <PropertyRef Name="StudentAllocationID" />
+          </Key>
+          <Property Name="StudentAllocationID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StudentID" Type="bigint" Nullable="false" />
+          <Property Name="SubjectAllocationID" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Subject">
+          <Key>
+            <PropertyRef Name="SubjectID" />
+          </Key>
+          <Property Name="SubjectID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubjectCode" Type="nvarchar" MaxLength="50" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsEnable" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="Teacher">
+          <Key>
+            <PropertyRef Name="TeacherID" />
+          </Key>
+          <Property Name="TeacherID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TeacherRegNo" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="MiddleName" Type="nvarchar" MaxLength="20" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="DisplayName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="Gender" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="DOB" Type="date" Nullable="false" />
+          <Property Name="Address" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ContactNo" Type="nvarchar" MaxLength="15" Nullable="false" />
+          <Property Name="IsEnable" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Teacher_Subject_Allocation">
+          <Key>
+            <PropertyRef Name="SubjectAllocationID" />
+          </Key>
+          <Property Name="SubjectAllocationID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TeacherID" Type="bigint" Nullable="false" />
+          <Property Name="SubjectID" Type="bigint" Nullable="false" />
+        </EntityType>
+        <Association Name="FK__Student_S__Stude__7F2BE32F">
+          <End Role="Student" Type="Self.Student" Multiplicity="1" />
+          <End Role="Student_Subject_Teacher_Allocation" Type="Self.Student_Subject_Teacher_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="StudentID" />
+            </Principal>
+            <Dependent Role="Student_Subject_Teacher_Allocation">
+              <PropertyRef Name="StudentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Student_S__Subje__7E37BEF6">
+          <End Role="Teacher_Subject_Allocation" Type="Self.Teacher_Subject_Allocation" Multiplicity="1" />
+          <End Role="Student_Subject_Teacher_Allocation" Type="Self.Student_Subject_Teacher_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Teacher_Subject_Allocation">
+              <PropertyRef Name="SubjectAllocationID" />
+            </Principal>
+            <Dependent Role="Student_Subject_Teacher_Allocation">
+              <PropertyRef Name="SubjectAllocationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Teacher_S__Subje__7A672E12">
+          <End Role="Subject" Type="Self.Subject" Multiplicity="1" />
+          <End Role="Teacher_Subject_Allocation" Type="Self.Teacher_Subject_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subject">
+              <PropertyRef Name="SubjectID" />
+            </Principal>
+            <Dependent Role="Teacher_Subject_Allocation">
+              <PropertyRef Name="SubjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Teacher_S__Teach__797309D9">
+          <End Role="Teacher" Type="Self.Teacher" Multiplicity="1" />
+          <End Role="Teacher_Subject_Allocation" Type="Self.Teacher_Subject_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Teacher">
+              <PropertyRef Name="TeacherID" />
+            </Principal>
+            <Dependent Role="Teacher_Subject_Allocation">
+              <PropertyRef Name="TeacherID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SMS_DBModelStoreContainer">
+          <EntitySet Name="Student" EntityType="Self.Student" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Student_Subject_Teacher_Allocation" EntityType="Self.Student_Subject_Teacher_Allocation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Subject" EntityType="Self.Subject" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Teacher" EntityType="Self.Teacher" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Teacher_Subject_Allocation" EntityType="Self.Teacher_Subject_Allocation" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Student_S__Stude__7F2BE32F" Association="Self.FK__Student_S__Stude__7F2BE32F">
+            <End Role="Student" EntitySet="Student" />
+            <End Role="Student_Subject_Teacher_Allocation" EntitySet="Student_Subject_Teacher_Allocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Student_S__Subje__7E37BEF6" Association="Self.FK__Student_S__Subje__7E37BEF6">
+            <End Role="Teacher_Subject_Allocation" EntitySet="Teacher_Subject_Allocation" />
+            <End Role="Student_Subject_Teacher_Allocation" EntitySet="Student_Subject_Teacher_Allocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Teacher_S__Subje__7A672E12" Association="Self.FK__Teacher_S__Subje__7A672E12">
+            <End Role="Subject" EntitySet="Subject" />
+            <End Role="Teacher_Subject_Allocation" EntitySet="Teacher_Subject_Allocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Teacher_S__Teach__797309D9" Association="Self.FK__Teacher_S__Teach__797309D9">
+            <End Role="Teacher" EntitySet="Teacher" />
+            <End Role="Teacher_Subject_Allocation" EntitySet="Teacher_Subject_Allocation" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SMS_DBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="StudentID" />
+          </Key>
+          <Property Name="StudentID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StudentRegNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FirstName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MiddleName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DisplayName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Gender" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DOB" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Address" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ContactNo" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IsEnable" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Student_Subject_Teacher_Allocation" Relationship="Self.FK__Student_S__Stude__7F2BE32F" FromRole="Student" ToRole="Student_Subject_Teacher_Allocation" />
+        </EntityType>
+        <EntityType Name="Student_Subject_Teacher_Allocation">
+          <Key>
+            <PropertyRef Name="StudentAllocationID" />
+          </Key>
+          <Property Name="StudentAllocationID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StudentID" Type="Int64" Nullable="false" />
+          <Property Name="SubjectAllocationID" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Student" Relationship="Self.FK__Student_S__Stude__7F2BE32F" FromRole="Student_Subject_Teacher_Allocation" ToRole="Student" />
+          <NavigationProperty Name="Teacher_Subject_Allocation" Relationship="Self.FK__Student_S__Subje__7E37BEF6" FromRole="Student_Subject_Teacher_Allocation" ToRole="Teacher_Subject_Allocation" />
+        </EntityType>
+        <EntityType Name="Subject">
+          <Key>
+            <PropertyRef Name="SubjectID" />
+          </Key>
+          <Property Name="SubjectID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SubjectCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IsEnable" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Teacher_Subject_Allocation" Relationship="Self.FK__Teacher_S__Subje__7A672E12" FromRole="Subject" ToRole="Teacher_Subject_Allocation" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Teacher">
+          <Key>
+            <PropertyRef Name="TeacherID" />
+          </Key>
+          <Property Name="TeacherID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TeacherRegNo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FirstName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MiddleName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DisplayName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Gender" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DOB" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Address" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ContactNo" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IsEnable" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Teacher_Subject_Allocation" Relationship="Self.FK__Teacher_S__Teach__797309D9" FromRole="Teacher" ToRole="Teacher_Subject_Allocation" />
+        </EntityType>
+        <EntityType Name="Teacher_Subject_Allocation">
+          <Key>
+            <PropertyRef Name="SubjectAllocationID" />
+          </Key>
+          <Property Name="SubjectAllocationID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TeacherID" Type="Int64" Nullable="false" />
+          <Property Name="SubjectID" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Student_Subject_Teacher_Allocation" Relationship="Self.FK__Student_S__Subje__7E37BEF6" FromRole="Teacher_Subject_Allocation" ToRole="Student_Subject_Teacher_Allocation" />
+          <NavigationProperty Name="Subject" Relationship="Self.FK__Teacher_S__Subje__7A672E12" FromRole="Teacher_Subject_Allocation" ToRole="Subject" />
+          <NavigationProperty Name="Teacher" Relationship="Self.FK__Teacher_S__Teach__797309D9" FromRole="Teacher_Subject_Allocation" ToRole="Teacher" />
+        </EntityType>
+        <Association Name="FK__Student_S__Stude__7F2BE32F">
+          <End Role="Student" Type="Self.Student" Multiplicity="1" />
+          <End Role="Student_Subject_Teacher_Allocation" Type="Self.Student_Subject_Teacher_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="StudentID" />
+            </Principal>
+            <Dependent Role="Student_Subject_Teacher_Allocation">
+              <PropertyRef Name="StudentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Student_S__Subje__7E37BEF6">
+          <End Role="Teacher_Subject_Allocation" Type="Self.Teacher_Subject_Allocation" Multiplicity="1" />
+          <End Role="Student_Subject_Teacher_Allocation" Type="Self.Student_Subject_Teacher_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Teacher_Subject_Allocation">
+              <PropertyRef Name="SubjectAllocationID" />
+            </Principal>
+            <Dependent Role="Student_Subject_Teacher_Allocation">
+              <PropertyRef Name="SubjectAllocationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Teacher_S__Subje__7A672E12">
+          <End Role="Subject" Type="Self.Subject" Multiplicity="1" />
+          <End Role="Teacher_Subject_Allocation" Type="Self.Teacher_Subject_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subject">
+              <PropertyRef Name="SubjectID" />
+            </Principal>
+            <Dependent Role="Teacher_Subject_Allocation">
+              <PropertyRef Name="SubjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Teacher_S__Teach__797309D9">
+          <End Role="Teacher" Type="Self.Teacher" Multiplicity="1" />
+          <End Role="Teacher_Subject_Allocation" Type="Self.Teacher_Subject_Allocation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Teacher">
+              <PropertyRef Name="TeacherID" />
+            </Principal>
+            <Dependent Role="Teacher_Subject_Allocation">
+              <PropertyRef Name="TeacherID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="SMS_DBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Students" EntityType="Self.Student" />
+          <EntitySet Name="Student_Subject_Teacher_Allocation" EntityType="Self.Student_Subject_Teacher_Allocation" />
+          <EntitySet Name="Subjects" EntityType="Self.Subject" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
+          <EntitySet Name="Teachers" EntityType="Self.Teacher" />
+          <EntitySet Name="Teacher_Subject_Allocation" EntityType="Self.Teacher_Subject_Allocation" />
+          <AssociationSet Name="FK__Student_S__Stude__7F2BE32F" Association="Self.FK__Student_S__Stude__7F2BE32F">
+            <End Role="Student" EntitySet="Students" />
+            <End Role="Student_Subject_Teacher_Allocation" EntitySet="Student_Subject_Teacher_Allocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Student_S__Subje__7E37BEF6" Association="Self.FK__Student_S__Subje__7E37BEF6">
+            <End Role="Teacher_Subject_Allocation" EntitySet="Teacher_Subject_Allocation" />
+            <End Role="Student_Subject_Teacher_Allocation" EntitySet="Student_Subject_Teacher_Allocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Teacher_S__Subje__7A672E12" Association="Self.FK__Teacher_S__Subje__7A672E12">
+            <End Role="Subject" EntitySet="Subjects" />
+            <End Role="Teacher_Subject_Allocation" EntitySet="Teacher_Subject_Allocation" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Teacher_S__Teach__797309D9" Association="Self.FK__Teacher_S__Teach__797309D9">
+            <End Role="Teacher" EntitySet="Teachers" />
+            <End Role="Teacher_Subject_Allocation" EntitySet="Teacher_Subject_Allocation" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SMS_DBModelStoreContainer" CdmEntityContainer="SMS_DBEntities">
+          <EntitySetMapping Name="Students">
+            <EntityTypeMapping TypeName="SMS_DBModel.Student">
+              <MappingFragment StoreEntitySet="Student">
+                <ScalarProperty Name="StudentID" ColumnName="StudentID" />
+                <ScalarProperty Name="StudentRegNo" ColumnName="StudentRegNo" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
+                <ScalarProperty Name="DOB" ColumnName="DOB" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="ContactNo" ColumnName="ContactNo" />
+                <ScalarProperty Name="IsEnable" ColumnName="IsEnable" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Student_Subject_Teacher_Allocation">
+            <EntityTypeMapping TypeName="SMS_DBModel.Student_Subject_Teacher_Allocation">
+              <MappingFragment StoreEntitySet="Student_Subject_Teacher_Allocation">
+                <ScalarProperty Name="StudentAllocationID" ColumnName="StudentAllocationID" />
+                <ScalarProperty Name="StudentID" ColumnName="StudentID" />
+                <ScalarProperty Name="SubjectAllocationID" ColumnName="SubjectAllocationID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Subjects">
+            <EntityTypeMapping TypeName="SMS_DBModel.Subject">
+              <MappingFragment StoreEntitySet="Subject">
+                <ScalarProperty Name="SubjectID" ColumnName="SubjectID" />
+                <ScalarProperty Name="SubjectCode" ColumnName="SubjectCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="IsEnable" ColumnName="IsEnable" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="SMS_DBModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Teachers">
+            <EntityTypeMapping TypeName="SMS_DBModel.Teacher">
+              <MappingFragment StoreEntitySet="Teacher">
+                <ScalarProperty Name="TeacherID" ColumnName="TeacherID" />
+                <ScalarProperty Name="TeacherRegNo" ColumnName="TeacherRegNo" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
+                <ScalarProperty Name="DOB" ColumnName="DOB" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="ContactNo" ColumnName="ContactNo" />
+                <ScalarProperty Name="IsEnable" ColumnName="IsEnable" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Teacher_Subject_Allocation">
+            <EntityTypeMapping TypeName="SMS_DBModel.Teacher_Subject_Allocation">
+              <MappingFragment StoreEntitySet="Teacher_Subject_Allocation">
+                <ScalarProperty Name="SubjectAllocationID" ColumnName="SubjectAllocationID" />
+                <ScalarProperty Name="TeacherID" ColumnName="TeacherID" />
+                <ScalarProperty Name="SubjectID" ColumnName="SubjectID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

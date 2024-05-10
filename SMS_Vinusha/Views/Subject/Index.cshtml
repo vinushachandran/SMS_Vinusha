@@ -1,0 +1,496 @@
+﻿@model SMS_Vinusha.Models.Subject
+
+@{
+    ViewBag.Title = "Subjects";
+}
+<div id="heading"><h2>Subjects</h2></div>
+
+<hr />
+
+<div class="panel container-fluid mb-5">
+    <div class="panel-heading d-flex align-items-center justify-content-between">
+        <div>
+            <button id="addNew" class="btn me-3 text-light">Add New Subject</button>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <select id="pageSize" class="form-select text-dark">
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                </select>
+            </div>
+            <div class="me-3">
+                <select id="filterCriteria" class="form-select text-dark">
+                    <option value="" selected>All</option>
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            <div class="search-wrapper">
+                <select id="searchCriteria" class="form-select text-dark me-2">
+                    <option value="" selected disabled>Select Search Criteria</option>
+                    <option value="SubjectCode">Subject Code</option>
+                    <option value="Name">Name</option>
+                </select>
+                <input type="text" id="searchQuery" class="form-control" placeholder="Search...">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="panel container-fluid" id="subjectDetails">
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                    <tr class="th_head">
+                        <th id="sorting">@Html.DisplayNameFor(model => model.SubjectCode)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.Name) </th>
+                        <th>@Html.DisplayNameFor(model => model.IsEnable)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="container-fluid">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-container">
+                        <li class="page-item mr-auto" id="prevButton">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                        <li class="page-item ml-auto" id="nextButton">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<div id="searchResults"></div>
+
+
+<div id="addSubjectForm" class="border p-4 mx-auto Customform" , style="max-width: 600px;display:none;">
+    @Html.Partial("_Add")
+
+</div>
+
+<div id="editSubjectForm" class="panel container-fluid" style="display: none;">
+    @Html.Partial("_Edit")
+</div>
+
+
+
+
+
+
+
+
+@section Scripts{
+
+    <script>
+
+
+        currentPage = 1;
+        pageSize = 5;
+
+        $(document).ready(function () {
+
+            //load intial data
+            loadData(currentPage, pageSize);
+
+
+            $('input[type=text], input[type=email], select').each(function () {
+                var req = $(this).attr('data-val-required');
+                if (undefined != req) {
+                    var label = $('label[for="' + $(this).attr('id') + '"]');
+                    var text = label.text();
+                    if (text.length > 0) {
+                        label.append('<span style="color:red"> *</span>');
+                    }
+                }
+            });
+
+
+            $('#addNew').click(function () {
+                $('#addSubjectForm').show();
+                $('#subjectDetails').hide();
+                $('#addNew').hide();
+                $('#backButton').show();
+                $('#heading').hide();
+                $('#searchQuery').hide();
+                $('#searchCriteria').hide();
+            });
+
+
+
+            $('#addSubjectForm').submit(function (event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: '/Subject/Add',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            if (response.message === "Subject code already exists.") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        loadData();
+                                        $('#addSubjectForm').hide();
+                                        $('#addSubjectForm').find('input[type=text]').val('');
+                                        $('#subjectDetails').show();
+                                        $('#addNew').show();
+                                        $('#backButton').hide();
+                                    }
+                                });
+                            }
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                        Swal.fire('Error!', 'An error occurred while adding the subject.', 'error');
+                    }
+                });
+
+            });
+
+
+
+
+
+
+
+            //Check subject code already exist
+            $('#Sub_code').change(function () {
+                var subCode = $(this).val();
+                $.ajax({
+                    url: '/Subject/IsSubCodeAvailable',
+                    type: 'GET',
+                    data: { subCode: subCode },
+                    success: function (response) {
+                        $('#subCode-error').text(response ? '' : 'Subject code already exists.');
+                    }
+                });
+            });
+
+
+            $('#searchQuery').on('input', function () {
+                var query = $(this).val();
+                var criteria = $('#searchCriteria').val(); // Get selected search criteria
+
+                if (query.trim() !== '') {
+                    $.ajax({
+                        url: '/Subject/Search',
+                        type: 'GET',
+                        data: { query: query, criteria: criteria }, // Include selected criteria in the data
+                        success: function (response) {
+                            $('#subjectDetails').hide();
+                            $('#searchResults').html(response).show();
+                            $('#heading').hide();
+                            $('#addnew').hide();
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while searching.', 'error');
+                        }
+                    });
+                } else {
+                    $('#subjectDetails').show(); // Show table body
+                    $('#searchResults').empty().hide();
+                    $('#heading').show();
+                    $('#addnew').show();
+                }
+            });
+
+            //Sorting
+            $('#subjectDetails th').click(function () {
+                var column = $(this).index();
+                sortTable(column);
+            });
+
+
+            //Sorting base on active state
+            $('#filterCriteria').change(function () {
+                loadData(currentPage, pageSize);
+            });
+
+
+            $('#nextButton').click(function () {
+                currentPage++;
+                loadData(currentPage, pageSize);
+            });
+
+            $('#prevButton').click(function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadData(currentPage, pageSize);
+                }
+            });
+
+            $('#pageSize').change(function () {
+                pageSize = parseInt($(this).val());
+                loadData(currentPage, pageSize);
+            });
+
+        });
+
+
+
+
+
+
+        function loadData(pageNumber, pageSize) {
+            var filterCriteria = $('#filterCriteria').val();
+            $.ajax({
+                url: '/Subject/All',
+                type: 'Get',
+                data: { pageNumber: currentPage, pageSize: pageSize, isActive: filterCriteria },
+                success: function (data) {
+                    $('#tableBody').empty();
+                    $.each(data.data, function (index, item) {
+                        var editUrl = '/Subject/Edit/' + item.SubjectID;
+                        var deleteUrl = '/Subject/Delete/' + item.SubjectID;
+                        var enableButton = item.IsEnable ? '<button type="button" class="btn btn-success" onclick="toggleEnable(\'' + item.SubjectID + '\', false,\'' + item.Name + '\')"><i class="bi bi-toggle-on"></i></button>' : '<button type="button" class="btn btn-danger" onclick="toggleEnable(\'' + item.SubjectID + '\', true,\'' + item.Name + '\')"><i class="bi bi-toggle-off"></i></button>';
+                        var row = '<tr>' +
+                            '<td>' + item.SubjectCode + '</td>' +
+                            '<td>' + item.Name + '</td>' +
+                            '<td>' + enableButton + '</td>' +
+                            '<td>' +
+                            '<button type="button" class="btn btn-primary" onclick="editSubject(\'' + item.SubjectID + '\')"><i class="bi bi-pencil-fill"></i></button> ' +
+                            '<button type="button" class="btn btn-danger" onclick="deleteSubject(\'' + item.SubjectID + '\')"><i class="bi bi-trash"></i> </button> ' +
+                            '</td>' +
+                            '</tr>';
+                        $('#tableBody').append(row);
+                    });
+                    updatePagination(pageNumber, data.totalPages)
+
+                },
+                error: function (error) {
+                    console.log(error);
+                    Swal.fire('Error!', 'An error occurred while loading data.', 'error');
+                }
+            });
+        }
+
+        function addSubjectSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadData();
+                        $('#addSubjectForm').hide();
+                        $('#addSubjectForm').find('input[type=text], input[type=number], input[type=date], select').val('');
+                        $('#subjectDetails').show();
+                        $('#addNew').show();
+                        $('#backButton').hide();
+                    }
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+            }
+        }
+
+        function addSubjectFailure(error) {
+            console.log(error);
+            Swal.fire('Error!', 'An error occurred while adding the subject.', 'error');
+        }
+
+
+        //Delete Function
+        function deleteSubject(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Subject/Delete/' + id,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#tableBody tr[data-id="' + id + '"]').remove();
+                                loadData();
+                                Swal.fire('Deleted!', 'Record deleted successfully.', 'success');
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while deleting the subject.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+
+
+
+        //For Edit Details
+        function editSubjectSuccess(data) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Subject details updated successfully!',
+                showCancelButton: false,
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    loadData();
+                    $('#editSubjectForm').hide();
+                    $('#backButton').hide();
+                    $('#addNew').show();
+                    $('#subjectDetails').show();
+
+                }
+            });
+        }
+
+        function editSubjectFailure(xhr, status, error) {
+            console.error("Error editing subject:", error);
+            Swal.fire('Error!', 'An error occurred while fetching subject details.', 'error');
+        }
+
+
+        // Edit subject function
+        function editSubject(id) {
+            $.ajax({
+                url: '/Subject/Edit/' + id,
+                type: 'GET',
+                success: function (data) {
+                    $('#editSubjectForm').html(data);
+                    $('#subjectDetails').hide();
+                    $('#addNew').hide();
+                    $('#backButton').show();
+                    $('#editSubjectForm').show();
+                    $('#searchQuery').hide();
+                    $('#searchCriteria').hide();
+                },
+                error: function (error) {
+                    console.log(error);
+                    Swal.fire('Error!', 'An error occurred while fetching subject details.', 'error');
+                }
+            });
+        }
+
+        function toggleEnable(id, enable, Name) {
+            var action = enable ? "enable" : "disable";
+
+            var confirmationMessage = "Are you sure you want to " + action + " the '" + Name + "' subject?";
+
+            Swal.fire({
+                title: 'Confirm',
+                text: confirmationMessage,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Subject/ToggleSubject',
+                        type: 'POST',
+                        data: { id: id, enable: enable },
+                        success: function (response) {
+                            if (response.success) {
+                                loadData();
+                                Swal.fire('Success!', response.message, 'success');
+                            } else {
+                                Swal.fire('Allert!', response.message, 'warning');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while toggling subject status.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+
+        function backSubject() {
+            $('#addSubjectForm').hide();
+            $('#addSubjectForm').find('input[type=text]').val('');
+            $('#subjectDetails').show();
+            $('#editSubjectForm').hide();
+            $('#addNew').show();
+            $('#backButton').hide();
+            $('#searchQuery').show();
+            $('#searchCriteria').show();
+        }
+
+
+        //For sorting columns
+
+        function sortTable(column) {
+            var tableRows = $('#subjectDetails tbody tr').get();
+            tableRows.sort(function (a, b) {
+                var valA = $(a).find('td').eq(column).text().toUpperCase();
+                var valB = $(b).find('td').eq(column).text().toUpperCase();
+                return valA.localeCompare(valB);
+            });
+            $('#tableBody').empty().append(tableRows);
+
+        }
+
+
+        function updatePagination(currentPage, totalPage) {
+            if (currentPage === 1) {
+                $('#prevButton').addClass('disabled');
+            }
+
+            if (currentPage === totalPage) {
+                $('#nextButton').addClass('disabled');
+            }
+        }
+
+
+
+
+
+    </script>
+}
+

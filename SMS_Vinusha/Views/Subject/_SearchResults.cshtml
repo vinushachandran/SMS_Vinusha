@@ -1,0 +1,46 @@
+﻿@model List<SMS_Vinusha.Models.Subject>
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Subject Code</th>
+                    <th>Name</th>
+                    <th>Is Enabled</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var subject in Model)
+                {
+                    <tr>
+                        <td>@subject.SubjectCode</td>
+                        <td>@subject.Name</td>
+                        <td>
+                            @if (subject.IsEnable)
+                            {
+                                <button type="button" class="btn btn-success" onclick="toggleEnable('@subject.SubjectID', false)">Enabled</button>
+
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-danger" onclick="toggleEnable('@subject.SubjectID', true)">Disabled</button>
+                            }
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="editSubject('@subject.SubjectID')"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="button" class="btn btn-danger" onclick="deleteSubject('@subject.SubjectID')"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>No results found.</p>
+}
+

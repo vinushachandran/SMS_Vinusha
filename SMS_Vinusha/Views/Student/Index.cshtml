@@ -1,0 +1,422 @@
+﻿@model SMS_Vinusha.Models.Student
+
+@{
+    ViewBag.Title = "Students";
+}
+
+<h2>Students</h2>
+
+<hr />
+
+<div class="panel container-fluid mb-5" id="hidable_details">
+    <div class="panel-heading d-flex align-items-center justify-content-between">
+        <div>
+            <button id="addNew" class="btn me-3 text-light">Add New Student</button>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <select id="pageSize" class="form-select text-dark">
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                </select>
+            </div>
+            <div class="me-3">
+                <select id="filterCriteria" class="form-select text-dark">
+                    <option value="" selected>All</option>
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            <div class="search-wrapper">
+                <select id="searchCriteria" class="form-select text-dark me-2">
+                    <option value="" selected disabled>All</option>
+                    <option value="StudentRegNo">Registration Number</option>
+                    <option value="DisplayName">Display Name</option>
+                </select>
+                <input type="text" id="searchQuery" class="form-control" placeholder="Search...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel container-fluid w-100" id="studentDetails">
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover w-100 table-striped">
+                <thead>
+                    <tr class="th_head">
+                        <th id="sorting">@Html.DisplayNameFor(model => model.StudentRegNo)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.FirstName)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.MiddleName)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.LastName)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.DisplayName)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.Email)</th>
+                        <th>@Html.DisplayNameFor(model => model.Gender)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.DOB)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.Address)</th>
+                        <th id="sorting">@Html.DisplayNameFor(model => model.ContactNo)</th>
+                        <th>@Html.DisplayNameFor(model => model.IsEnable)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="container-fluid">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-container">
+                        <li class="page-item mr-auto" id="prevButton">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                        <li class="page-item ml-auto" id="nextButton">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="addEdit">
+    <div id="addStudentForm" class="container-fluid" style="display: none;">
+        @Html.Partial("_Add")
+    </div>
+    <div id="editStudentForm" class="container-fluid" style="display: none;">
+
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+
+        currentPage = 1;
+        pageSize = 5;
+
+        $(document).ready(function () {
+
+            loadData(currentPage, pageSize);
+
+            $('input[type=text], input[type=email], select').each(function () {
+                var req = $(this).attr('data-val-required');
+                if (undefined != req) {
+                    var label = $('label[for="' + $(this).attr('id') + '"]');
+                    var text = label.text();
+                    if (text.length > 0) {
+                        label.append('<span style="color:red"> *</span>');
+                    }
+                }
+            });
+
+
+
+
+
+
+            $('#addNew').click(function () {
+                $('#addStudentForm').show();
+                $('#studentDetails').hide();
+                $('#hidable_details').hide();
+            });
+
+            $("#DOB").datepicker({
+                dateFormat: "mm-dd-yy",
+                changeYear: true,
+                changeMonth: true,
+                yearRange: "-100:+0", // Allow selecting a range of 100 years ago to the current year
+                maxDate: "0" // Set the maximum selectable date to today
+            });
+
+            $('#studentDetails th').click(function () {
+                var column = $(this).index();
+                sortTable(column);
+            });
+
+            //Sorting based on active state
+            $('#filterCriteria').change(function () {
+                loadData(currentPage, pageSize);
+            });
+
+            //Check Registration Number already exists
+            $('#StudentRegNo').change(function () {
+                var studentReg = $(this).val();
+                $.ajax({
+                    url: '/Student/IsStudentRegAvailable',
+                    type: 'GET',
+                    data: { studentReg: studentReg },
+                    success: function (response) {
+                        $('#StudentRegNo-error').text(response ? '' : 'Student registration number already exists.');
+                    }
+                });
+            });
+
+            //Check Display Name already exists
+            $('#DisplayName').change(function () {
+                var displayName = $(this).val();
+                $.ajax({
+                    url: '/Student/IsDisplayNameAvailable',
+                    type: 'GET',
+                    data: { displayName: displayName },
+                    success: function (response) {
+                        $('#DisplayName-error').text(response ? '' : 'Display name already exists.');
+                    }
+                });
+            });
+            $('#nextButton').click(function () {
+                currentPage++;
+                loadData(currentPage, pageSize);
+            });
+
+            $('#prevButton').click(function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadData(currentPage, pageSize);
+                }
+            });
+
+            $('#pageSize').change(function () {
+                pageSize = parseInt($(this).val());
+                loadData(currentPage, pageSize);
+            });
+
+        });
+
+        function loadData(pageNumber, pageSize) {
+            function formatDate(dateString) {
+                var timestamp = parseInt(dateString.replace("/Date(", "").replace(")/", ""));
+                var date = new Date(timestamp);
+                var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
+                return formattedDate;
+            }
+            var filterCriteria = $('#filterCriteria').val();
+            $.ajax({
+                url: '/Student/All',
+                type: 'GET',
+                data: { pageNumber: currentPage, pageSize: pageSize, isActive: filterCriteria },
+                success: function (data) {
+                    $('#tableBody').empty();
+                    $.each(data.data, function (index, item) {
+                        var editUrl = '/Student/Edit/' + item.StudentID;
+                        var deleteUrl = '/Student/Delete/' + item.StudentID;
+                        var enableButton = item.IsEnable ? '<button type="button" class="btn btn-success" onclick="toggleEnable(\'' + item.StudentID + '\', false,\'' + item.DisplayName + '\')"><i class="bi bi-toggle-on"></i></button>' : '<button type="button" class="btn btn-danger" onclick="toggleEnable(\'' + item.StudentID + '\', true,\'' + item.DisplayName + '\')"><i class="bi bi-toggle-off"></i></button>';
+                        var emaillink = '<a href="mailto:' + item.Email + '">' + item.Email + '</a>';
+                        var contactLink = '<a href="tel:' + item.ContactNo + '">' + item.ContactNo + '</a>';
+                        var row = '<tr>' +
+                            '<td>' + item.StudentRegNo + '</td>' +
+                            '<td>' + item.FirstName + '</td>' +
+                            '<td>' + item.MiddleName + '</td>' +
+                            '<td>' + item.LastName + '</td>' +
+                            '<td>' + item.DisplayName + '</td>' +
+                            '<td>' + emaillink + '</td>' +
+                            '<td>' + item.Gender + '</td>' +
+                            '<td>' + formatDate(item.DOB) + '</td>' +
+                            '<td>' + item.Address + '</td>' +
+                            '<td>' + contactLink + '</td>' +
+                            '<td>' + enableButton + '</td>' +
+                            '<td>' +
+
+                            '<button type="button" class="btn btn-primary" onclick="editStudent(\'' + item.StudentID + '\')"><i class="bi bi-pencil-fill"></i> </button> ' +
+                            '<button type="button" class="btn btn-danger" onclick="deleteStudent(\'' + item.StudentID + '\')"><i class="bi bi-trash"></i> </button> ' +
+                            '</td>' +
+                            '</tr>';
+                        $('#tableBody').append(row);
+                    });
+                    updatePagination(pageNumber, data.totalPages)
+
+                },
+                error: function (error) {
+                    console.log(error);
+                    Swal.fire('Error!', 'An error occurred while loading data.', 'error');
+                }
+            });
+        }
+
+        function addStudentSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadData();
+                        $('#addStudentForm').hide();
+                        $('#addStudentForm').find('input[type=text], input[type=number], input[type=date], select').val(''); // Clear form fields
+                        $('#studentDetails').show();
+                        $('#addNew').show();
+                    }
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+            }
+        }
+
+        function addStudentFailure(error) {
+            console.log(error);
+            Swal.fire('Error!', 'An error occurred while adding the student.', 'error');
+        }
+
+        function editStudent(id) {
+            $.ajax({
+                url: '/Student/Edit/' + id,
+                type: 'GET',
+                success: function (data) {
+                    $('#editStudentForm').html(data);
+                    $('#studentDetails').hide();
+                    $('#hidable_details').hide();
+                    $('#editStudentForm').show();
+                    datePickerFunc();
+                },
+                error: function (error) {
+                    console.log(error);
+                    Swal.fire('Error!', 'An error occurred while fetching student details.', 'error');
+                }
+
+            });
+
+        }
+
+        function editStudentSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Student details updated successfully!',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadData();
+                        $('#editStudentForm').hide();
+                        $('#backButton').hide();
+                        $('#hidable_details').show();
+                        $('#studentDetails').show();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Alert',
+                    text: response.message
+                });
+            }
+        }
+
+        function editStudentFailure(xhr, status, error) {
+            console.error("Error editing student:", error);
+            Swal.fire('Error!', 'An error occurred while fetching student details.', 'error');
+        }
+
+        function deleteStudent(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Student/Delete/' + id,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#tableBody tr:has(td:contains(' + id + '))').remove();
+                                loadData(currentPage, pageSize);
+                                Swal.fire('Deleted!', 'Record deleted successfully.', 'success');
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while deleting the student.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function backStudent() {
+            $('#addStudentForm').hide();
+            $('#addStudentForm').find('input[type=text], input[type=number], input[type=date],input[type=email], select').val('');
+            $('#studentDetails').show();
+            $('#editStudentForm').hide();
+            $('#hidable_details').show();
+        }
+
+        function toggleEnable(id, enable, Name) {
+            var action = enable ? "enable" : "disable";
+            var confirmationMessage = "Are you sure you want to " + action + " the '" + Name + "' student?";
+            Swal.fire({
+                title: 'Confirm',
+                text: confirmationMessage,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Student/ToggleStudent',
+                        type: 'POST',
+                        data: { id: id, enable: enable },
+                        success: function (response) {
+                            if (response.success) {
+                                loadData(currentPage, pageSize);
+                                Swal.fire('Success!', response.message, 'success');
+                            } else {
+                                Swal.fire('Alert!', response.message, 'warning');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while toggling student status.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function sortTable(column) {
+            var tableRows = $('#studentDetails tbody tr').get();
+            tableRows.sort(function (a, b) {
+                var valA = $(a).find('td').eq(column).text().toUpperCase();
+                var valB = $(b).find('td').eq(column).text().toUpperCase();
+                return valA.localeCompare(valB);
+            });
+            $('#tableBody').empty().append(tableRows);
+        }
+
+        function datePickerFunc() {
+            $("#editStudentForm #DOB").datepicker({
+                dateFormat: "mm-dd-yyyy",
+                changeYear: true,
+                changeMonth: true,
+                yearRange: "-100:+0",
+                maxDate: "0"
+            });
+        }
+
+        function updatePagination(currentPage, totalPage) {
+            if (currentPage === 1) {
+                $('#prevButton').addClass('disabled');
+            }
+
+            if (currentPage === totalPage) {
+                $('#nextButton').addClass('disabled');
+            }
+        }
+
+    </script>
+}

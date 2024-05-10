@@ -1,0 +1,98 @@
+﻿body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+}
+
+.container.body-content {
+    flex: 1;
+}
+
+footer {
+    background-color: #9F2B68;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: 0;
+    color: #E6E6FA;
+}
+
+.navbar.comHeader {
+    background-color: #9F2B68;
+    color:white;
+    font-size: 20px;
+}
+
+
+
+ul.nav.nav-tabs {
+    margin: 10px 0px;
+}
+
+.navigation {
+    color: white;
+}
+
+#topHeader {
+    background-color: #E6E6FA;
+    padding-left: 30px;
+    padding-top: 10px;
+    font-size: 25px;
+    font-weight: 500;
+    padding-bottom: 0;
+    height: 7vh;
+}
+
+.adding-form {
+    width: 20vw;
+    box-shadow: 0 0 7px #9F2B68;
+    padding: 50px;
+    border-radius: 20px;
+    margin-top: 100px;
+    margin-left: 600px;
+    margin-right: 600px;
+}
+
+.field {
+    padding-left: 500px;
+}
+
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+#searchCriteria {
+    margin-right: 5px;
+    width: 10vw;
+    background-color: #E6E6FA;
+}
+
+.th_head {
+    background-color: #E6E6FA;
+
+}
+
+#filterCriteria {
+    background-color: #E6E6FA;
+}
+
+.pagination-container {
+    left: 0;
+    width: 100%;
+    
+    padding: 10px 0;
+
+}
+
+#addNew {
+    background-color: #9F2B68;
+}
+

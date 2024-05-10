@@ -1,0 +1,156 @@
+﻿@model SMS_Vinusha.Models.Student
+
+@{
+    bool isEditing = ViewBag.IsEditing ?? false;
+}
+
+@using (Ajax.BeginForm(isEditing ? "Edit" : "Add", "Student", new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = isEditing ? "editStudentSuccess" : "addStudentSuccess",
+    OnFailure = isEditing ? "editStudentFailure" : "addStudentFailure"
+}, new { @class = "border p-4 mx-auto Customform", style = "max-width: 600px;" }))
+{
+    if (isEditing)
+    {
+        @Html.HiddenFor(model => model.StudentID)
+    }
+
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<div class="justify-content-center align-items-center">
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.StudentRegNo, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8 ">
+            @Html.EditorFor(model => model.StudentRegNo, new { htmlAttributes = new { @class = "form-control", placeholder = "Student RegNo", id = "StudentRegNo" } })
+            <span id="StudentRegNo-error" class="text-danger"></span>
+            @Html.ValidationMessageFor(model => model.StudentRegNo, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control", placeholder = "First Name" } })
+            @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.MiddleName, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.MiddleName, new { htmlAttributes = new { @class = "form-control", placeholder = "Middle Name" } })
+            @Html.ValidationMessageFor(model => model.MiddleName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control", placeholder = "Last Name" } })
+            @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.DisplayName, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.DisplayName, new { htmlAttributes = new { @class = "form-control", placeholder = "Display Name", id = "StuDisName" } })
+            <span id="StudentDisName-error" class="text-danger"></span>
+            @Html.ValidationMessageFor(model => model.DisplayName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", placeholder = "Email Address", type = "email" } })
+            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label col-md-2" })
+        </div>
+        <div class="col-md-8">
+            @Html.DropDownListFor(model => model.Gender, new SelectList(new[]
+                                            {
+              new SelectListItem { Text = "Male", Value = "Male" },
+              new SelectListItem { Text = "Female", Value = "Female" },
+              new SelectListItem { Text = "Other", Value = "Other" },
+          }, "Value", "Text"), "-- Select Gender --", new { @class = "form-control form-select" })
+            @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.DOB, htmlAttributes: new { @class = "control-label col-md-2" })
+        </div>
+        <div class="col-md-8">
+            @Html.TextBoxFor(model => model.DOB, "{0:MM-dd-yyyy}", new { @class = "form-control", placeholder = "MM-DD-YYYY", id = "DOB" })
+            @Html.ValidationMessageFor(model => model.DOB, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control", placeholder = "Address" } })
+            @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.ContactNo, htmlAttributes: new { @class = "col-form-label", style = "word-wrap: break-word;" })
+        </div>
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.ContactNo, new { htmlAttributes = new { @class = "form-control", placeholder = "Contact No" } })
+            @Html.ValidationMessageFor(model => model.ContactNo, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-4">
+
+            @Html.LabelFor(model => model.IsEnable, htmlAttributes: new { @class = "col-form-label" })
+        </div>
+        <div class="col-md-8">
+
+            <div class="form-check m-3">
+                @Html.CheckBoxFor(model => model.IsEnable, new { @class = "form-check-input", id = "Enable" })
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="form-group row m-2">
+        <div class="col-md-10 offset-md-4">
+            <br />
+            <input type="submit" value="@((isEditing ? "Update" : "Create"))" class="btn text-light"  style="background-color: #9F2B68" />
+            <a href="#" class="btn btn-secondary" onclick="backStudent()">Back</a>
+        </div>
+    </div>
+</div>
+}
+
