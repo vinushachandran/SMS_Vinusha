@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "Allocation";
+}
+
+<div class="panel panel-default">
+    <div class="container-fluid">
+        <ul class="nav nav-tabs" id="main-tab" role="tablist">
+            <li class="nav-item allocation-list" role="presentation">
+                <button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#tab-one-content" area-selected="true">Teacher Subject Allocation</button>
+            </li>
+            <li class="nav-item allocation-list" role="presentation">
+                <button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#tab-two-content" area-selected="false">Student Subject Teacher Allocation</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="TabContent">
+            @* teacher subject allocation div *@
+            <div class="tab-pane show active allocationContent" id="tab-one-content" role="tabpanel" aria-labelledby="first-tab">
+                <div class="panel container-fluid mb-5">
+                    <div class="text-center">
+                        <h2 class="mb-5"> Teacher Subject Allocation</h2>
+
+                    </div>
+                    <div class="panel-heading d-flex align-items-center justify-content-between">
+                        <div>
+                            <button id="addNew" class="btn me-3 text-light">Add New Allocation</button>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <select id="pageSize" class="form-select text-dark">
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </div>
+                            <div class="me-3">
+                                <select id="filterCriteria" class="form-select text-dark">
+                                    <option value="" selected>All</option>
+                                    <option value="true">Enabled</option>
+                                    <option value="false">Disabled</option>
+                                </select>
+                            </div>
+                            <div class="search-wrapper">
+                                <select id="searchCriteria" class="form-select text-dark me-2">
+                                    <option value="" selected disabled>Select Search Criteria</option>
+                                    <option value="SubjectCode">Subject Code</option>
+                                    <option value="Name">Name</option>
+                                </select>
+                                <input type="text" id="searchQuery" class="form-control" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="subjectAllocationTable" class="table table-bordered table-striped">
+                        <thead class="text-center tableHeading">
+                            <tr>
+                                <th class="sorting">Subject Code</th>
+                                <th class="sorting">Subject Name</th>
+                                <th class="sorting">Teacher Registration No</th>
+                                <th class="sorting">Teacher Name</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center" id="teacherSubjectAllocationTable"></tbody>
+
+                    </table>
+                    <div class="container-fluid">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-container">
+                                <li class="page-item mr-auto" id="prevButton">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                </li>
+                                <li class="page-item ml-auto" id="nextButton">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            loadSubjectTeacherAllocationData();
+        });
+
+        function loadSubjectTeacherAllocationData() {
+            $.ajax({
+                url: '/Allocation/AllSubjectTeacherAllocation',
+                type: 'GET',
+                success: function (data) {
+                    if (data.success) {
+                        $('#teacherSubjectAllocationTable').empty();
+
+                        
+                        $.each(data.data, function (index, item) {
+                            var row = $('<tr>').appendTo('#teacherSubjectAllocationTable');
+                            $('<td>').text(item.SubjectCode).appendTo(row);
+                            $('<td>').text(item.SubjectName).appendTo(row);
+                            $('<td>').text(item.TeacherRegNo).appendTo(row);
+                            $('<td>').text(item.TeacherName).appendTo(row);
+                        });
+                    } else {
+                        
+                        $('#teacherSubjectAllocationTable').html('<tr><td colspan="4">' + data.message + '</td></tr>');
+                    }
+                },
+                error: function () {
+                    
+                    console.error('Failed to load data.');
+                }
+            });
+        }
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
