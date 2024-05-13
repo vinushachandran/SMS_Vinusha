@@ -106,19 +106,21 @@ namespace SMS_Vinusha.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "An error occurred while deleting the subject: " + ex.Message });
+                return Json(new { success = false, message = "This Subject allocated for teacher so you can not delete it. "});
             }
         }
 
 
         public ActionResult Edit(int id)
         {
+            ViewBag.isEditing = true;
+
             var subject = db.Subjects.Find(id);
             if (subject == null)
             {
                 return HttpNotFound();
             }
-            return PartialView("_Edit", subject);
+            return PartialView("_Add", subject);
         }
 
         [HttpPost]
@@ -130,10 +132,10 @@ namespace SMS_Vinusha.Controllers
                 bool enable = db.Subjects.Any(s => s.IsEnable == subject.IsEnable);
                 if (!enable)
                 {
-                    bool isSubjectUsed = db.Teacher_Subject_Allocation.Any(s => s.SubjectID == subject.SubjectID);
+                    bool isSubjectUsed = db.Teacher_Subject_Allocation.Any(s => s.SubjectID == subject.SubjectID );
                     if (isSubjectUsed)
                     {
-                        return Json(new { success = false, message = "This Teacher is allocated to subject so you can't disable it!" });
+                        return Json(new { success = false, message = "This Subject  is allocated to Teacher so you can't disable it!" });
                     }
                 }
 
@@ -143,7 +145,7 @@ namespace SMS_Vinusha.Controllers
                     if (db.Subjects.Any(s => s.SubjectCode == subject.SubjectCode && s.SubjectID != subject.SubjectID))
                     {
                         ModelState.AddModelError("SubjectCode", "Subject code already exists.");
-                        return PartialView("_Edit", subject);
+                        return PartialView("_Add", subject);
                     }
 
                     db.Entry(subject).State = EntityState.Modified;

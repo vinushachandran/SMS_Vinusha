@@ -1,14 +1,23 @@
 ﻿
 @model SMS_Vinusha.Models.Subject
 
-@using (Ajax.BeginForm("Add", "Subject", new AjaxOptions
+@{
+    bool isEditing = ViewBag.IsEditing ?? false;
+}
+
+@using (Ajax.BeginForm(isEditing ? "Edit" : "Add", "Subject", new AjaxOptions
 {
     HttpMethod = "POST",
     UpdateTargetId = "tableBody",
-    OnSuccess = "addSubjectSuccess",
-    OnFailure = "addSubjectFailure"
-}))
+    OnSuccess = isEditing ? "editSubjectSuccess" : "addSubjectSuccess",
+    OnFailure = isEditing ? "editSubjectFailure" : "addSubjectFailure"
+}, new { @class = "border p-4 mx-auto Customform", style = "max-width: 600px;" }))
 {
+    if (isEditing)
+    {
+        @Html.HiddenFor(model => model.SubjectID)
+    }
+
     @Html.AntiForgeryToken()
 
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -40,7 +49,7 @@
         </div>
     </div>
 
-    
+
 
     <div class="form-group row m-2">
         <div class="col-md-4">
@@ -58,11 +67,12 @@
     <div class="form-group row m-2">
         <div class="col-md-10 offset-md-4">
             <br />
-            <input type="submit" value="create" class="btn text-light" style="background-color: #9F2B68" />
+            <input type="submit" value="@((isEditing ? "Update" : "Create"))" class="btn text-light" style="background-color: #9F2B68" />
             <a href="#" class="btn btn-secondary" onclick="backSubject()">Back</a>
         </div>
     </div>
+
+    
 </div>
 }
 
-         

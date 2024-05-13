@@ -1,0 +1,62 @@
+﻿@model SMS_Vinusha.Models.Teacher_Subject_Allocation
+
+@{
+    bool isEditing = ViewBag.IsEditing ?? false;
+}
+
+@using (Ajax.BeginForm(isEditing ? "Edit_TeacherSubjectAllocation" : "AddTeacherSubjectAllocation", "TeacherSubjectAllocation", new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = isEditing ? "editTeacherSubjectAllocationSuccess" : "addTeacherSubjectAllocationSuccess",
+    OnFailure = isEditing ? "editTeacherSubjectAllocationFailure" : "addTeacherSubjectAllocationFailure"
+}, new { @class = "border p-4 mx-auto Customform", style = "max-width: 600px;" }))
+{
+    if (isEditing)
+    {
+        @Html.HiddenFor(model => model.SubjectAllocationID)
+    }
+
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="form-group row m-1">
+        <div class="col-md-4 p-2">
+            @Html.LabelFor(model => model.TeacherID, "Teacher")
+        </div>
+        <div class="col-md-8">
+            @if (isEditing)
+            {
+                @Html.DropDownListFor(model => model.TeacherID, new SelectList(ViewBag.Teachers, "TeacherID", "DisplayName"), new { @class = "form-select", disabled= "disabled" })
+                @Html.HiddenFor(model => model.TeacherID)
+            }
+            else
+            {
+                @Html.DropDownListFor(model => model.TeacherID, new SelectList(ViewBag.Teachers, "TeacherID", "DisplayName"), "select Teacher", new { @class = "form-select" })
+            }
+
+            @Html.ValidationMessageFor(model => model.TeacherID, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-1">
+        <div class="col-md-4 p-2">
+            @Html.LabelFor(model => model.SubjectID, "Subject")
+        </div>
+        <div class="col-md-8">
+            @Html.DropDownListFor(model => model.SubjectID, new SelectList(ViewBag.Subjects, "SubjectID", "Name"), "select Subject", new { @class = "form-select" })
+            @Html.ValidationMessageFor(model => model.SubjectID, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-10 offset-md-4">
+            <br />
+            <input type="submit" value="@((isEditing ? "Update" : "Create"))" class="btn text-light" style="background-color: #9F2B68" />
+            <a href="#" class="btn btn-secondary" onclick="backTeacher()">Back</a>
+        </div>
+    </div>
+
+
+
+}

@@ -7,7 +7,7 @@
 
 <hr />
 
-<div class="panel container-fluid mb-5">
+<div class="panel container-fluid mb-5 " id="hiden-items">
     <div class="panel-heading d-flex align-items-center justify-content-between">
         <div>
             <button id="addNew" class="btn me-3 text-light">Add New Subject</button>
@@ -86,13 +86,13 @@
 <div id="searchResults"></div>
 
 
-<div id="addSubjectForm" class="border p-4 mx-auto Customform" , style="max-width: 600px;display:none;">
+<div id="addSubjectForm" class="p-4 mx-auto Customform" , style="max-width: 600px;display:none;">
     @Html.Partial("_Add")
 
 </div>
 
 <div id="editSubjectForm" class="panel container-fluid" style="display: none;">
-    @Html.Partial("_Edit")
+   
 </div>
 
 
@@ -131,11 +131,8 @@
             $('#addNew').click(function () {
                 $('#addSubjectForm').show();
                 $('#subjectDetails').hide();
-                $('#addNew').hide();
-                $('#backButton').show();
+                $('#hiden-items').hide();
                 $('#heading').hide();
-                $('#searchQuery').hide();
-                $('#searchCriteria').hide();
             });
 
 
@@ -165,25 +162,25 @@
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         loadData();
-                                        $('#addSubjectForm').hide();
                                         $('#addSubjectForm').find('input[type=text]').val('');
+                                        $('#addSubjectForm').hide();
                                         $('#subjectDetails').show();
-                                        $('#addNew').show();
-                                        $('#backButton').hide();
+                                        $('#hidden-items').show(); // Corrected spelling from hiden to hidden
+                                        $('#heading').show();
                                     }
                                 });
                             }
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                         }
                     },
-                    error: function (error) {
+                    error: function (error) { // Corrected syntax from error: to error,
                         console.log(error);
                         Swal.fire('Error!', 'An error occurred while adding the subject.', 'error');
                     }
                 });
-
             });
+
+
+            
 
 
 
@@ -350,15 +347,15 @@
                         success: function (response) {
                             if (response.success) {
                                 $('#tableBody tr[data-id="' + id + '"]').remove();
-                                loadData();
+                                loadData(currentPage, pageSize);
                                 Swal.fire('Deleted!', 'Record deleted successfully.', 'success');
                             } else {
-                                Swal.fire('Error!', response.message, 'error');
+                                Swal.fire('Allert!', response.message, 'warning');
                             }
                         },
                         error: function (error) {
                             console.log(error);
-                            Swal.fire('Error!', 'An error occurred while deleting the subject.', 'error');
+                            Swal.fire('Allert!', 'This Subject allocated for teacher soyou can not delete it.', 'warning');
                         }
                     });
                 }
@@ -378,11 +375,12 @@
                 confirmButtonText: 'OK'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    loadData();
+                    loadData(currentPage, pageSize);
                     $('#editSubjectForm').hide();
                     $('#backButton').hide();
                     $('#addNew').show();
                     $('#subjectDetails').show();
+                    $('#hiden-items').show();
 
                 }
             });
@@ -402,11 +400,8 @@
                 success: function (data) {
                     $('#editSubjectForm').html(data);
                     $('#subjectDetails').hide();
-                    $('#addNew').hide();
-                    $('#backButton').show();
                     $('#editSubjectForm').show();
-                    $('#searchQuery').hide();
-                    $('#searchCriteria').hide();
+                    $('#hiden-items').hide();
                 },
                 error: function (error) {
                     console.log(error);
@@ -435,7 +430,7 @@
                         data: { id: id, enable: enable },
                         success: function (response) {
                             if (response.success) {
-                                loadData();
+                                loadData(currentPage, pageSize);
                                 Swal.fire('Success!', response.message, 'success');
                             } else {
                                 Swal.fire('Allert!', response.message, 'warning');
@@ -452,14 +447,13 @@
 
 
         function backSubject() {
-            $('#addSubjectForm').hide();
             $('#addSubjectForm').find('input[type=text]').val('');
+            $('#addSubjectForm').hide();
             $('#subjectDetails').show();
+            $('#hiden-items').show();
+            $('#heading').show();
             $('#editSubjectForm').hide();
-            $('#addNew').show();
-            $('#backButton').hide();
-            $('#searchQuery').show();
-            $('#searchCriteria').show();
+
         }
 
 

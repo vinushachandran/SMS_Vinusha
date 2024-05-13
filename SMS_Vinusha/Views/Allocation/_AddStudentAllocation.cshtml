@@ -1,0 +1,90 @@
+﻿@model SMS_Vinusha.Models.Student_Subject_Teacher_Allocation
+
+@{
+    bool isEditing = ViewBag.IsEditing ?? false;
+}
+
+@using (Ajax.BeginForm(isEditing ? "EditStudentAllocation" : "AddStudentAllocation", "SAllocation", new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = isEditing ? "editStudentAllocationSuccess" : "addStudentAllocationSuccess",
+    OnFailure = isEditing ? "editStudentAllocationFailure" : "addStudentAllocationFailure"
+}, new { @class = "border p-4 mx-auto Customform", style = "max-width: 600px;" }))
+{
+    if (isEditing)
+    {
+        @Html.HiddenFor(model => model.StudentAllocationID)
+    }
+
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="form-group row m-1">
+        <div class="col-md-4 p-2">
+            @Html.LabelFor(model => model.StudentID, "Student")<span class="required-asterisk"> *</span>
+        </div>
+        <div class="col-md-8 ">
+            @if (isEditing)
+            {
+                @Html.DropDownListFor(model => model.StudentID, new SelectList(ViewBag.Students, "StudentID", "DisplayName"), new { @class = "form-select", disabled = "disabled" })
+                @Html.HiddenFor(model => model.StudentID)
+            }
+            else
+            {
+                @Html.DropDownListFor(model => model.StudentID, new SelectList(ViewBag.Students, "StudentID", "DisplayName"), "Select Student", new { @class = "form-select" })
+            }
+            @Html.ValidationMessageFor(model => model.StudentID, "", new { @class = "text-danger" })
+
+        </div>
+    </div>
+
+    <div class="form-group row m-1">
+        <div class="col-md-4 p-2">
+            @Html.Label("Subject", htmlAttributes: new { @class = "control-label" })
+        </div>
+        <div class="col-md-8">
+            <select id="subjectDropdown" class="form-select">
+                <option value="">Select Subject</option>
+            </select>
+            @Html.ValidationMessage("SubjectID", "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-1">
+        <div class="col-md-4 p-2">
+            @Html.Label("Teacher", htmlAttributes: new { @class = "control-label" })
+        </div>
+        <div class="col-md-8">
+            <select id="teacherDropdown" class="form-select">
+                <option value="">Select Teacher</option>
+            </select>
+            @Html.ValidationMessage("TeacherID", "", new { @class = "text-danger" })
+            <a class="btn btn-success m-2" onclick="getAllocationID()">Get Subject Allocation ID</a>
+        </div>
+
+    </div>
+
+    <div class="form-group row m-1">
+        <div class="col-md-4 p-2">
+            @Html.LabelFor(model => model.SubjectAllocationID, "Subject Allocation ID")
+        </div>
+        <div class="col-md-8 ">
+            @Html.TextBoxFor(model => model.SubjectAllocationID, new { @class = "form-control", id = "subjectAllocationID", @readonly = "readonly" })
+            <span id="subjectAllocationID-error" class="text-danger"></span>
+            @Html.ValidationMessageFor(model => model.SubjectAllocationID, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group row m-2">
+        <div class="col-md-10 offset-md-4">
+            <br />
+            <input type="submit" value="@((isEditing ? "Update" : "Create"))" class="btn text-light" style="background-color: #9F2B68" />
+            <a href="#" class="btn btn-secondary" onclick="backStudent()">Back</a>
+        </div>
+    </div>
+
+
+
+}
+

@@ -22,36 +22,13 @@
                     </div>
                     <div class="panel-heading d-flex align-items-center justify-content-between">
                         <div>
-                            <button id="addNew" class="btn me-3 text-light">Add New Allocation</button>
+                            <button id="addNew" class="btn me-3 text-light addNew1">Add New Allocation</button>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <select id="pageSize" class="form-select text-dark">
-                                    <option value="5" selected>5</option>
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                </select>
-                            </div>
-                            <div class="me-3">
-                                <select id="filterCriteria" class="form-select text-dark">
-                                    <option value="" selected>All</option>
-                                    <option value="true">Enabled</option>
-                                    <option value="false">Disabled</option>
-                                </select>
-                            </div>
-                            <div class="search-wrapper">
-                                <select id="searchCriteria" class="form-select text-dark me-2">
-                                    <option value="" selected disabled>Select Search Criteria</option>
-                                    <option value="SubjectCode">Subject Code</option>
-                                    <option value="Name">Name</option>
-                                </select>
-                                <input type="text" id="searchQuery" class="form-control" placeholder="Search...">
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
-                <div class="table-responsive">
+                <div class="table-responsive" id="table-datails-teachers">
                     <table id="subjectAllocationTable" class="table table-bordered table-striped">
                         <thead class="text-center tableHeading">
                             <tr>
@@ -59,42 +36,145 @@
                                 <th class="sorting">Subject Name</th>
                                 <th class="sorting">Teacher Registration No</th>
                                 <th class="sorting">Teacher Name</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-center" id="teacherSubjectAllocationTable"></tbody>
 
                     </table>
-                    <div class="container-fluid">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination pagination-container">
-                                <li class="page-item mr-auto" id="prevButton">
-                                    <a class="page-link" href="#" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                        <span class="sr-only">Previous</span>
-                                    </a>
-                                </li>
-                                <li class="page-item ml-auto" id="nextButton">
-                                    <a class="page-link" href="#" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                        <span class="sr-only">Next</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
+
+                    <div class="addEdit">
+                        <div id="addTeacherSubjectAllocationForm" class="container-fluid" style="display: none;">
+                            @Html.Partial("_Add")
+                        </div>
+                        <div id="editTeacherSubjectAllocationForm" class="container-fluid" style="display: none;">
+
+                        </div>
+
                     </div>
+
+
+
+                </div>
+
+
+            </div>
+
+            @* Students subject allocation div *@
+        <div class="tab-pane show allocationContent" id="tab-two-content" role="tabpanel" aria-labelledby="second-tab">
+            <div class="panel container-fluid mb-5">
+                <div class="text-center">
+                    <h2 class="mb-5"> Student Subject Teacher Allocation</h2>
+
+                </div>
+                <div class="panel-heading d-flex align-items-center justify-content-between">
+                    <div>
+                        <button id="addNew" class="btn me-3 text-light addNew2">Add New Allocation</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="table-responsive" id="table-datails-students">
+                <table id="studentAllocationTable" class="table table-bordered table-striped">
+                    <thead class="text-center tableHeading">
+                        <tr>
+                            <th class="sorting">Student Registration Number</th>
+                            <th class="sorting">Student Name</th>
+                            <th class="sorting">Subject Code</th>
+                            <th class="sorting">Subject Name</th>
+                            <th class="sorting">Teacher Registration No</th>
+                            <th class="sorting">Teacher Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center" id="studentAllocationTableBody"></tbody>
+
+                </table>
+                <div class="addEdit">
+                    <div id="addStudentAllocationForm" class="container-fluid" style="display: none;">
+                        @Html.Partial("_AddStudentAllocation")
+                    </div>
+                    <div id="editStudentAllocationForm" class="container-fluid" style="display: none;">
+
+                    </div>
+
                 </div>
 
             </div>
+           
+
+        </div>
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
 
 @section Scripts{
     <script>
         $(document).ready(function () {
             loadSubjectTeacherAllocationData();
+
+
+            $('.addNew1').click(function () {
+                $('#addTeacherSubjectAllocationForm').show();
+                $('.addNew1').hide();
+                $('#subjectAllocationTable').hide();
+            });
+
+            //For Student Allocation
+            loadStudentAllocationData();
+
+            //Subject Teachers
+            $('.addNew2').click(function () {
+                $('#addStudentAllocationForm').show();
+                $('.addNew2').hide();
+                $('#studentAllocationTable').hide();
+                activeSubjectTeacher();
+
+            });
+
+            $('#subjectDropdown').change(function () {
+                var subjectId = $(this).val();
+                if (subjectId !== '') {
+                    $.ajax({
+                        url: '/Allocation/GetTeachersBySubject',
+                        type: 'GET',
+                        data: { subjectId: subjectId },
+                        success: function (response) {
+                            $('#teacherDropdown').empty();
+                            $.each(response, function (index, item) {
+                                $('#teacherDropdown').append($('<option>', {
+                                    value: item.Value,
+                                    text: item.Text
+                                }));
+                            });
+                        },
+                        error: function () {
+                            console.log('Error fetching teachers.');
+                        }
+                    });
+                } else {
+                    $('#teacherDropdown').empty();
+                    $('#teacherDropdown').append($('<option>', {
+                        value: '',
+                        text: 'Select Teacher'
+                    }));
+                }
+            });
+
+
         });
 
+
+        //For Teacher Allocation
         function loadSubjectTeacherAllocationData() {
             $.ajax({
                 url: '/Allocation/AllSubjectTeacherAllocation',
@@ -103,25 +183,491 @@
                     if (data.success) {
                         $('#teacherSubjectAllocationTable').empty();
 
-                        
+
                         $.each(data.data, function (index, item) {
                             var row = $('<tr>').appendTo('#teacherSubjectAllocationTable');
                             $('<td>').text(item.SubjectCode).appendTo(row);
                             $('<td>').text(item.SubjectName).appendTo(row);
                             $('<td>').text(item.TeacherRegNo).appendTo(row);
                             $('<td>').text(item.TeacherName).appendTo(row);
+
+
+                            var actionCell = $('<td>').appendTo(row);
+                            var editButton = $('<button>').addClass('btn btn-primary btn-sm').appendTo(actionCell);
+                            editButton.append($('<i>').addClass('bi bi-pencil-fill'));
+                            editButton.click(function () {
+                                editTeacherSubjectAllocation(item.SubjectAllocationID);
+                            });
+
+                            var deleteButton = $('<button>').addClass('btn btn-danger btn-sm').appendTo(actionCell);
+                            deleteButton.append($('<i>').addClass('bi bi-trash'));
+                            deleteButton.click(function () {
+                                deleteTeacherSubjectAllocation(item.SubjectAllocationID);
+                            });
+
+
                         });
                     } else {
-                        
+
                         $('#teacherSubjectAllocationTable').html('<tr><td colspan="4">' + data.message + '</td></tr>');
                     }
                 },
                 error: function () {
-                    
+
                     console.error('Failed to load data.');
                 }
             });
         }
+
+
+        function addTeacherSubjectAllocationSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        loadSubjectTeacherAllocationData();
+                        $('#addTeacherSubjectAllocationForm').hide();
+                        $('#addTeacherSubjectAllocationForm').find('input[type=text], select').val(''); 
+                        $('#subjectAllocationTable').show();
+                        $('.addNew1').show();
+
+                        
+
+
+                    }
+                });
+            } else {
+                Swal.fire({ icon: 'warning', title: 'Allert', text: response.message });
+            }
+        }
+
+
+        function addTeacherSubjectAllocationFailure(error) {
+            console.log(error);
+            Swal.fire('Allert!', 'An error occurred while adding the teacher.', 'worning');
+        }
+
+        function backTeacher() {
+            $('#addTeacherSubjectAllocationForm').hide();
+            $('#addTeacherSubjectAllocationForm').find('input[type=text], select').val('');
+            $('#subjectAllocationTable').show();
+            $('#editTeacherSubjectAllocationForm').hide();
+            $('.addNew1').show();
+            
+
+        }
+
+        function backStudent() {
+            $('#addStudentAllocationForm').hide();
+            $('#addStudentAllocationForm').find('input[type=text], select').val('');
+            $('#studentAllocationTable').show();
+            $('#editStudentAllocationForm').hide();
+            $('.addNew2').show();
+
+
+
+        }
+
+        function deleteTeacherSubjectAllocation(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Allocation/DeleteTeacherSubjectAllocation/' + id,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#tableBody tr:has(td:contains(' + id + '))').remove();
+                                loadSubjectTeacherAllocationData();
+                                Swal.fire('Deleted!', 'Record deleted successfully.', 'success');
+
+                            } else {
+                                Swal.fire('Allert!', response.message, 'warning');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while deleting the teacher.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function editTeacherSubjectAllocation(id) {
+            $.ajax({
+                url: '/Allocation/Edit_TeacherSubjectAllocation/' + id,
+                type: 'GET',
+                success: function (data) {
+                    $('#editTeacherSubjectAllocationForm').html(data);
+                    $('#subjectAllocationTable').hide();
+                    $('#editTeacherSubjectAllocationForm').show();
+                    $('.addNew1').hide();
+
+                },
+                error: function (error) {
+                    console.log(error);
+                    Swal.fire('Error!', 'An error occurred while fetching teacher details.', 'error');
+                }
+
+            });
+
+        }
+
+        function editTeacherSubjectAllocationSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Teacher details updated successfully!',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadSubjectTeacherAllocationData();
+                        $('#subjectAllocationTable').show();
+                        $('#editTeacherSubjectAllocationForm').hide();
+                        $('.addNew1').show();
+
+                    }
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Alert',
+                    text: response.message
+                });
+            }
+
+        }
+
+
+        function editTeacherSubjectAllocationFailure(xhr, status, error) {
+            console.error("Error editing teacher:", error);
+            Swal.fire('Error!', 'An error occurred while fetching teacher details.', 'error');
+        }
+
+
+
+        //For Students Allocation
+
+        function loadStudentAllocationData() {
+            $.ajax({
+                url: '/Allocation/AllStudentAllocation',
+                type: 'GET',
+                success: function (data) {
+                    if (data.success) {
+                        $('#studentAllocationTableBody').empty();
+
+
+                        $.each(data.data, function (index, item) {
+                            var row = $('<tr>').appendTo('#studentAllocationTableBody');
+                            $('<td>').text(item.studentRegNo).appendTo(row);
+                            $('<td>').text(item.StudentName).appendTo(row);
+                            $('<td>').text(item.subjectCode).appendTo(row);
+                            $('<td>').text(item.SubjectName).appendTo(row);
+                            $('<td>').text(item.teacherRegNo).appendTo(row);
+                            $('<td>').text(item.TeacherName).appendTo(row);
+
+
+                            var actionCell = $('<td>').appendTo(row);
+                            var editButton = $('<button>').addClass('btn btn-primary btn-sm').appendTo(actionCell);
+                            editButton.append($('<i>').addClass('bi bi-pencil-fill'));
+                            editButton.click(function () {
+                                editStudentAllocation(item.studentAllocationID);
+                            });
+
+                            var deleteButton = $('<button>').addClass('btn btn-danger btn-sm').appendTo(actionCell);
+                            deleteButton.append($('<i>').addClass('bi bi-trash'));
+                            deleteButton.click(function () {
+                                deleteStudentAllocation(item.studentAllocationID);
+                            });
+
+
+                        });
+                    } else {
+
+                        $('#studentAllocationTable').html('<tr><td colspan="4">' + data.message + '</td></tr>');
+                    }
+                },
+                error: function () {
+
+                    console.error('Failed to load data.');
+                }
+            });
+        }
+
+
+        //Available subject and teacher
+        function activeSubjectTeacher() {
+            $.ajax({
+                url: '/Allocation/GetAllocatedSubject',
+                type: 'GET',
+                success: function (response) {
+                    $('#subjectDropdown').empty().append($('<option>', {
+                        value: '',
+                        text: 'Select Subject'
+                    }));
+                    $('#teacherDropdown').empty().append($('<option>', {
+                        value: '',
+                        text: 'Select Teacher'
+                    }));
+
+                    if (response.success) {
+                        $.each(response.data, function (index, item) {
+                            $('#subjectDropdown').append($('<option>', {
+                                value: item.SubjectID,
+                                text: item.Name
+                            }));
+                        });
+                    } else {
+                        console.log('No data found.');
+                    }
+                },
+                error: function () {
+                    console.log('Error fetching allocated subjects.');
+                }
+            });
+        }
+
+        //add Allocation
+        function getAllocationID() {
+            var subjectId = $('#subjectDropdown').val();
+            var teacherId = $('#teacherDropdown').val();
+            var subjectAllocationID = $('#subjectAllocationID');
+
+            if (subjectId == '' && teacherId == '') {
+                subjectId = $('#editStudentAllocationForm #subjectDropdown').val();
+                teacherId = $('#editStudentAllocationForm #teacherDropdown').val();
+                subjectAllocationID = $('#editStudentAllocationForm #subjectAllocationID');
+            }
+
+            if (subjectId !== '' && teacherId !== '') {
+                $.ajax({
+                    url: '/Allocation/GetAllocationID',
+                    type: 'GET',
+                    data: { subjectId: subjectId, teacherId: teacherId },
+                    success: function (response) {
+                        $(subjectAllocationID).val(response);
+                        subjectId = '';
+                        teacherId = '';
+                        subjectAllocationID = '';
+
+
+                    },
+                    error: function () {
+                        console.log('Error fetching allocation ID.');
+                    }
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Allert!',
+                    text: 'Please select subject and teacher.'
+                });
+                return;
+            }
+        }
+
+
+        //Add Student allocation
+        function addStudentAllocationSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadStudentAllocationData();
+                        $('#addStudentAllocationForm').hide();
+                        $('#subjectAllocationID').val('');
+                        $('#addStudentAllocationForm').find('select').val('');
+                        $('#studentAllocationTable').show();
+                        $('.addNew2').show();
+                        $('#addStudentAllocationForm').hide();
+                        $('#studentAllocationTable').show();
+                       
+                    }
+                });
+            } else {
+                Swal.fire({ icon: 'warning', title: '', text: response.message, error: response.error });
+            }
+        }
+
+        function addStudentAllocationFailure(xhr, status, error) {
+            console.error("Error adding teacher subject allocation:", error);
+            Swal.fire('Error!', 'An error occurred while adding the teacher subject allocation.', 'error');
+        }
+
+        function deleteStudentAllocation(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Allocation/DeleteStudentAllocation/' + id,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#studentAllocationTableBody tr:has(td:contains(' + id + '))').remove();
+                                loadStudentAllocationData();
+                                Swal.fire('Deleted!', 'Record deleted successfully.', 'success');
+
+                            } else {
+                                Swal.fire('Allert!', response.message, 'warning');
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            Swal.fire('Error!', 'An error occurred while deleting the teacher.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+
+        //edit teacherSubject Allocation
+        function editStudentAllocationSuccess(response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Student Subject Allocation updated successfully!',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        loadStudentAllocationData();
+                        $('#studentAllocationTable').show();
+                        $('#editStudentAllocationForm').hide();
+                        $('.addNew2').show();
+                    }
+                });
+
+            } else {
+                Swal.fire({ icon: 'warning', title: 'Edit Prevented', text: response.message });
+            }
+        }
+
+
+        function editStudentAllocationFailure(xhr, status, error) {
+            console.error("Error editing student:", error);
+            Swal.fire('Error!', 'An error occurred while fetching the student allocation details.', 'error');
+        }
+
+
+        //editSubjectAllocation
+        function editStudentAllocation(studentAllocationID) {
+            $.ajax({
+                url: '/Allocation/EditStudentAllocation/' + studentAllocationID,
+                type: 'GET',
+                success: function (data) {
+                    $('#editStudentAllocationForm').html(data);
+                    $('#editStudentAllocationForm').show();
+                    $.ajax({
+                        url: '/Allocation/GetAllocatedSubject',
+                        type: 'GET',
+                        success: function (response) {
+                            $('#editStudentAllocationForm #subjectDropdown').empty().append($('<option>', {
+                                value: '',
+                                text: 'Select Subject'
+                            }));
+                            $('#editStudentAllocationForm #teacherDropdown').empty().append($('<option>', {
+                                value: '',
+                                text: 'Select Teacher'
+                            }));
+
+                            if (response.success) {
+                                $.each(response.data, function (index, item) {
+                                    $('#editStudentAllocationForm #subjectDropdown').append($('<option>', {
+                                        value: item.SubjectID,
+                                        text: item.Name
+                                    }));
+                                });
+                            } else {
+                                console.log('No data found.');
+                            }
+                        },
+                        error: function () {
+                            console.log('Error fetching allocated subjects.');
+                        }
+                    });
+                    $.validator.unobtrusive.parse($('#editStudentAllocationForm'));
+                    subjectOnchangeTeacher();
+                    $('#studentAllocationTable').hide();
+                    $('#editStudentAllocationForm').show();
+                    $('.addNew2').hide();
+                },
+                error: function (error) {
+                    console.log(error);
+                    Swal.fire('Error!', 'An error occurred while fetching student allocation details.', 'error');
+                }
+            });
+        }
+
+        function subjectOnchangeTeacher() {
+            //Subject Teachers
+            $('#editStudentAllocationForm #subjectDropdown').change(function () {
+                var subjectId = $(this).val();
+                if (subjectId !== '') {
+                    $.ajax({
+                        url: '/Allocation/GetTeachersBySubject',
+                        type: 'GET',
+                        data: { subjectId: subjectId },
+                        success: function (response) {
+                            $('#editStudentAllocationForm #teacherDropdown').empty();
+                            $.each(response, function (index, item) {
+                                $('#editStudentAllocationForm #teacherDropdown').append($('<option>', {
+                                    value: item.Value,
+                                    text: item.Text
+                                }));
+                            });
+                        },
+                        error: function () {
+                            console.log('Error fetching teachers.');
+                        }
+                    });
+                } else {
+                    $('#editStudentAllocationForm #teacherDropdown').empty();
+                    $('#editStudentAllocationForm #teacherDropdown').append($('<option>', {
+                        value: '',
+                        text: 'Select Teacher'
+                    }));
+                }
+            });
+        }
+
+
+
+
+
+
+
 
     </script>
 }

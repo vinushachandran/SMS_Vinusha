@@ -242,13 +242,14 @@
     <Content Include="Views\Shared\_Footer.cshtml" />
     <Content Include="Views\Subject\Index.cshtml" />
     <Content Include="Views\Subject\_Add.cshtml" />
-    <Content Include="Views\Subject\_Edit.cshtml" />
     <Content Include="Views\Subject\_SearchResults.cshtml" />
     <Content Include="Views\Teacher\Index.cshtml" />
     <Content Include="Views\Teacher\_Add.cshtml" />
     <Content Include="Views\Student\Index.cshtml" />
     <Content Include="Views\Student\_Add.cshtml" />
     <Content Include="Views\Allocation\Index.cshtml" />
+    <Content Include="Views\Allocation\_Add.cshtml" />
+    <Content Include="Views\Allocation\_AddStudentAllocation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
